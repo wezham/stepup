@@ -35,30 +35,32 @@ class FactorRanking:
 
 def handle_push_factor(
     okta_client: Client, verification_response: VerifyUserFactorResponse
-) -> bool:
+) -> FactorResult:
     polling_url = verification_response.field_links["poll"]
     while True:
         logger.info("Polling ...")
         poll_result = okta_client.make_request(
             url=polling_url["href"], method="GET"
         )
-        if FactorResult[poll_result["factorResult"]] is FactorResult.SUCCESS:
+        result = FactorResult[poll_result["factorResult"]]
+        if result is FactorResult.SUCCESS:
             print("YAY")
             break
-        elif FactorResult[poll_result["factorResult"]] is FactorResult.FAILED:
-            print("NAY")
-            break
-        elif FactorResult[poll_result["factorResult"]] is FactorResult.REJECTED:
+        elif result is FactorResult.REJECTED:
             print("slay")
             break
-        elif FactorResult[poll_result["factorResult"]] is FactorResult.TIMEOUT:
-            print("timeout")
+        elif result is FactorResult.WAITING:
+            print("waiting")
+            time.sleep(5)
+            continue
+        else:
+            print("failed to get result")
             break
 
-        time.sleep(5)
+    return result
 
 
-LINK_MAPPING: Dict[Type[UserFactor], Callable] = {
+FACTOR_TO_HANDLER_MAPPING: Dict[Type[UserFactor], Callable] = {
     PushUserFactor: handle_push_factor
 }
 
@@ -107,6 +109,11 @@ def perform_step_up(
         factor_id=highest_preference_factor.id,
         verify_factor_request={},
     )
-    factor_handler = LINK_MAPPING[type(highest_preference_factor)]
+    factor_handler = FACTOR_TO_HANDLER_MAPPING[type(highest_preference_factor)]
     result = factor_handler(okta_client, verification_response)
-    logger.info("result")
+    return StepUpResult(
+        factor_used=type(highest_preference_factor),
+        verification_result=result,
+        metadata=None,
+        message="Factor check complete",
+    )

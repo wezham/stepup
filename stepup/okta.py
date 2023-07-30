@@ -1,21 +1,20 @@
-import asyncio
+import time
 from dataclasses import dataclass
-from enum import Enum
-from typing import List, Optional, Set, Dict, Type, Callable
+from typing import List, Optional, Dict, Type, Callable
 
-from okta.client import Client
-from okta.models import (
+
+from stepup.api.okta.client import Client
+from stepup.api.okta.factor_models import (
     FactorType,
     UserFactor,
-    SmsUserFactor,
-    EmailUserFactor,
     PushUserFactor,
-    U2FUserFactor,
-    CallUserFactor,
+    VerifyUserFactorResponse,
+    FactorResult,
 )
-from okta.models import VerifyFactorRequest, VerifyUserFactorResponse, User
 
 from logging import getLogger
+
+from stepup.api.okta.user_models import User
 
 logger = getLogger(__name__)
 
@@ -34,27 +33,29 @@ class FactorRanking:
     ranking: int
 
 
-async def handle_push_factor(
+def handle_push_factor(
     okta_client: Client, verification_response: VerifyUserFactorResponse
 ) -> bool:
-    polling_url = verification_response.links["poll"]
+    polling_url = verification_response.field_links["poll"]
     while True:
-        request, error = okta_client.get_request_executor().create_request(
-            method="GET", url=polling_url
+        logger.info("Polling ...")
+        poll_result = okta_client.make_request(
+            url=polling_url["href"], method="GET"
         )
-        response, error = await okta_client.get_request_executor().execute(
-            request, None
-        )
-        if response["factorResult"] == "WAITING":
-            await asyncio.sleep(5)
-        elif response["factorResult"] == "SUCCESS":
-            result = True
+        if FactorResult[poll_result["factorResult"]] is FactorResult.SUCCESS:
+            print("YAY")
             break
-        else:
-            result = True
+        elif FactorResult[poll_result["factorResult"]] is FactorResult.FAILED:
+            print("NAY")
+            break
+        elif FactorResult[poll_result["factorResult"]] is FactorResult.REJECTED:
+            print("slay")
+            break
+        elif FactorResult[poll_result["factorResult"]] is FactorResult.TIMEOUT:
+            print("timeout")
             break
 
-    return result
+        time.sleep(5)
 
 
 LINK_MAPPING: Dict[Type[UserFactor], Callable] = {
@@ -62,12 +63,12 @@ LINK_MAPPING: Dict[Type[UserFactor], Callable] = {
 }
 
 
-async def perform_step_up(
+def perform_step_up(
     okta_client: Client, user: User, preference_ranking: List[FactorRanking]
 ):
-    user_factors = await okta_client.list_factors(userId=user.id)
+    user_factors = okta_client.list_factors(user_id=user.id)
     if not user_factors:
-        logger.error("No factors found for user", user=user.id)
+        logger.error("No factors found for user")
         return StepUpResult(
             factor_used=None,
             verification_result=False,
@@ -92,21 +93,20 @@ async def perform_step_up(
             message="Factors available are not in the preference ranking",
         )
 
-    sorted_factors_to_try: List[FactorType] = sorted(
-        factors_to_try, key=lambda factor_: factor_.ranking
+    sorted_factors_to_try: List[UserFactor] = sorted(
+        factors_to_try,
+        key=lambda factor_: factor_preference_map[type(factor_)].ranking,
     )
     highest_preference_factor = sorted_factors_to_try[0]
     logger.info(
-        "Attempting to step-up with factor",
-        factor=highest_preference_factor,
+        f"Attempting to step-up with factor {highest_preference_factor.factorType}",
     )
 
-    verification_response = await okta_client.verify_factor(
-        userId=user.id,
-        factorId=highest_preference_factor.id,
+    verification_response = okta_client.verify_factor(
+        user_id=user.id,
+        factor_id=highest_preference_factor.id,
         verify_factor_request={},
     )
-
     factor_handler = LINK_MAPPING[type(highest_preference_factor)]
     result = factor_handler(okta_client, verification_response)
     logger.info("result")

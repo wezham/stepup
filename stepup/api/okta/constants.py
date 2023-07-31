@@ -1,4 +1,8 @@
-from .factor_models import CallUserFactor, CustomHotpUserFactor, EmailUserFactor
+from .factor_models import (
+    CallUserFactor,
+    CustomHotpUserFactor,
+    EmailUserFactor,
+)
 from .factor_models import FactorType as FT
 from .factor_models import (
     HardwareUserFactor,

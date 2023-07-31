@@ -28,7 +28,7 @@ jobs:
         run: poetry run isort --profile black --check stepup
 
       - name: Run pylint
-        run: poetry run black --check steupup
+        run: poetry run black --check stepup/
 
       - name: Run pylint
-        run: poetry run pylint steupup
+        run: poetry run pylint stepup

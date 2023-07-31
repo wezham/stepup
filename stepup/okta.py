@@ -43,19 +43,9 @@ def handle_push_factor(
             url=polling_url["href"], method="GET"
         )
         result = FactorResult[poll_result["factorResult"]]
-        if result is FactorResult.SUCCESS:
-            print("YAY")
-            break
-        elif result is FactorResult.REJECTED:
-            print("slay")
-            break
-        elif result is FactorResult.WAITING:
-            print("waiting")
+        if result is FactorResult.WAITING:
             time.sleep(5)
             continue
-        else:
-            print("failed to get result")
-            break
 
     return result
 
@@ -66,7 +56,9 @@ FACTOR_TO_HANDLER_MAPPING: Dict[Type[UserFactor], Callable] = {
 
 
 def perform_step_up(
-    okta_client: Client, user: User, preference_ranking: List[FactorRanking]
+    okta_client: Client,
+    user: User,
+    preference_ranking: List[FactorRanking],
 ):
     user_factors = okta_client.list_factors(user_id=user.id)
     if not user_factors:

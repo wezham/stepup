@@ -1,17 +1,16 @@
-from .factor_models import FactorType as FT, SignedNonceFactor
+from .factor_models import CallUserFactor, CustomHotpUserFactor, EmailUserFactor
+from .factor_models import FactorType as FT
 from .factor_models import (
-    EmailUserFactor,
-    CustomHotpUserFactor,
+    HardwareUserFactor,
     PushUserFactor,
     SecurityQuestionUserFactor,
+    SignedNonceFactor,
     SmsUserFactor,
     TokenUserFactor,
-    HardwareUserFactor,
     TotpUserFactor,
-    WebUserFactor,
     WebAuthnUserFactor,
+    WebUserFactor,
 )
-from .factor_models import CallUserFactor
 
 OKTA_FACTOR_TYPE_TO_FACTOR = {
     FT.CALL: CallUserFactor,

@@ -1,19 +1,16 @@
 import time
 from dataclasses import dataclass
-from typing import List, Optional, Dict, Type, Callable
-
+from logging import getLogger
+from typing import Callable, Dict, List, Optional, Type
 
 from stepup.api.okta.client import Client
 from stepup.api.okta.factor_models import (
-    FactorType,
-    UserFactor,
-    PushUserFactor,
-    VerifyUserFactorResponse,
     FactorResult,
+    FactorType,
+    PushUserFactor,
+    UserFactor,
+    VerifyUserFactorResponse,
 )
-
-from logging import getLogger
-
 from stepup.api.okta.user_models import User
 
 logger = getLogger(__name__)

@@ -89,12 +89,8 @@ class VerifyFactorRequest(BaseModel):
 
 
 class UserFactor(BaseModel):
-    field_embedded: Optional[Dict[str, Dict[str, Any]]] = Field(
-        None, alias="_embedded"
-    )
-    field_links: Optional[Dict[str, Dict[str, Any]]] = Field(
-        None, alias="_links"
-    )
+    field_embedded: Optional[Dict[str, Dict[str, Any]]] = Field(None, alias="_embedded")
+    field_links: Optional[Dict[str, Dict[str, Any]]] = Field(None, alias="_links")
     created: Optional[datetime] = None
     factorType: Optional[FactorType] = None
     id: Optional[str] = None
@@ -246,24 +242,16 @@ class HardwareUserFactor(UserFactor):
 
 
 class VerifyUserFactorResponse(BaseModel):
-    field_embedded: Optional[Dict[str, Dict[str, Any]]] = Field(
-        None, alias="_embedded"
-    )
-    field_links: Optional[Dict[str, Dict[str, Any]]] = Field(
-        None, alias="_links"
-    )
+    field_embedded: Optional[Dict[str, Dict[str, Any]]] = Field(None, alias="_embedded")
+    field_links: Optional[Dict[str, Dict[str, Any]]] = Field(None, alias="_links")
     expiresAt: Optional[datetime] = None
     factorResult: Optional[FactorResult] = None
     factorResultMessage: Optional[str] = None
 
 
 class FactorVerifyResult(BaseModel):
-    field_embedded: Optional[Dict[str, Dict[str, Any]]] = Field(
-        None, alias="_embedded"
-    )
-    field_links: Optional[Dict[str, Dict[str, Any]]] = Field(
-        None, alias="_links"
-    )
+    field_embedded: Optional[Dict[str, Dict[str, Any]]] = Field(None, alias="_embedded")
+    field_links: Optional[Dict[str, Dict[str, Any]]] = Field(None, alias="_links")
     expiresAt: Optional[datetime] = None
     factorResult: Optional[FactorResult] = None
     factorResultMessage: Optional[str] = None

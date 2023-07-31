@@ -6,9 +6,7 @@ from pydantic import BaseModel, Field, SecretStr
 
 
 class UserType(BaseModel):
-    field_links: Optional[Dict[str, Dict[str, Any]]] = Field(
-        None, alias="_links"
-    )
+    field_links: Optional[Dict[str, Dict[str, Any]]] = Field(None, alias="_links")
     created: Optional[datetime] = None
     createdBy: Optional[str] = None
     default: Optional[bool] = None
@@ -117,12 +115,8 @@ class UserCredentials(BaseModel):
 
 
 class User(BaseModel):
-    field_embedded: Optional[Dict[str, Dict[str, Any]]] = Field(
-        None, alias="_embedded"
-    )
-    field_links: Optional[Dict[str, Dict[str, Any]]] = Field(
-        None, alias="_links"
-    )
+    field_embedded: Optional[Dict[str, Dict[str, Any]]] = Field(None, alias="_embedded")
+    field_links: Optional[Dict[str, Dict[str, Any]]] = Field(None, alias="_links")
     activated: Optional[datetime] = None
     created: Optional[datetime] = None
     credentials: Optional[UserCredentials] = None

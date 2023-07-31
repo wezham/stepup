@@ -28,12 +28,12 @@ class Client:
     ) -> Optional[Union[Dict, List[Dict]]]:
         full_url = url or f"https://{self.okta_tenant_domain}/api/v1{endpoint}"
         response = requests.request(
-            method, full_url, headers=self.headers(), json=data
+            method, full_url, headers=self.headers(), json=data, timeout=10
         )
         if 200 <= response.status_code <= 299:
             return response.json()
-        else:
-            return response.json()
+
+        return None
 
     def list_factors(self, user_id: str) -> List[UserFactor]:
         url = f"/users/{user_id}/factors"
@@ -44,6 +44,7 @@ class Client:
                 OKTA_FACTOR_TYPE_TO_FACTOR[factor.get("factorType")](**factor)
                 for factor in result
             ]
+        return []
 
     def verify_factor(
         self, user_id: str, factor_id: str, verify_factor_request
@@ -54,9 +55,12 @@ class Client:
         )
         if result:
             return VerifyUserFactorResponse(**result)
+        return None
 
     def get_user(self, user_id: str) -> Optional[User]:
         url = f"/users/{user_id}"
         result = self.make_request(endpoint=url, method="GET")
         if result:
             return User(**result)
+
+        return None

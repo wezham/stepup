@@ -90,7 +90,8 @@ def perform_step_up(
     )
     highest_preference_factor = sorted_factors_to_try[0]
     logger.info(
-        f"Attempting to step-up with factor {highest_preference_factor.factorType}",
+        "Attempting to step-up with factor %s",
+        highest_preference_factor.factorType,
     )
 
     verification_response = okta_client.verify_factor(

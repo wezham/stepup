@@ -25,7 +25,7 @@ jobs:
         run: poetry install --with=dev
 
       - name: Run isort
-        run: poetry run isort --profile black -c steupup
+        run: poetry run isort --profile black --check stepup
 
       - name: Run pylint
         run: poetry run black --check steupup
